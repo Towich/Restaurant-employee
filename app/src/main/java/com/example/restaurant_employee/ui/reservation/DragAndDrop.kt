@@ -1,7 +1,7 @@
 package com.example.restaurant_employee.ui.reservation
 
 import android.util.Log
-import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.Composable
@@ -14,8 +14,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
-import org.w3c.dom.Text
+import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 
 internal val LocalDragTargetInfo = compositionLocalOf { DragTargetInfo() }
@@ -24,10 +25,12 @@ internal val LocalDragTargetInfo = compositionLocalOf { DragTargetInfo() }
 fun <T> DragTarget(
     modifier: Modifier = Modifier,
     dataToDrop: T,
+    contentSize: Dp,
     content: @Composable ((text: String) -> Unit)
 ){
     var currentPosition by remember { mutableStateOf(Offset.Zero) }
     var currentOriginPos by remember { mutableStateOf(Offset.Zero) }
+    var isDraggingLocal by remember { mutableStateOf(false) }
     val currentState = LocalDragTargetInfo.current
 
     Box(
@@ -37,12 +40,12 @@ fun <T> DragTarget(
                 currentPosition = it.localToWindow(Offset.Zero)
             }
             .pointerInput(Unit){
-                detectDragGesturesAfterLongPress(
+                detectDragGestures (
                     onDragStart = {
                         currentState.dataToDrop = dataToDrop
                         currentState.isDragging = true
+                        isDraggingLocal = true
                         currentState.dragPosition = currentOriginPos
-//                        currentOriginOffset += it
                         currentState.draggableComposable = content
                     },
                     onDrag = { change, dragAmount ->
@@ -50,14 +53,16 @@ fun <T> DragTarget(
                         currentState.dragOffset += Offset(dragAmount.x, dragAmount.y)
                     },
                     onDragEnd = {
-
+                        // Round table by cells
                         currentState.dragOffset = Offset(
-                            (currentState.dragOffset.x.roundToInt() / 200 * 200).toFloat(),
-                            (currentState.dragOffset.y.roundToInt() / 200 * 200).toFloat()
+                            ((currentState.dragOffset.x / contentSize.roundToPx().toFloat()).roundToInt() * contentSize.roundToPx()).toFloat(),
+                            ((currentState.dragOffset.y / contentSize.roundToPx().toFloat()).roundToInt() * contentSize.roundToPx()).toFloat()
                         )
+
                         currentOriginPos += currentState.dragOffset
                         currentState.dragOffset = Offset.Zero
                         currentState.isDragging = false
+                        isDraggingLocal = false
                     },
                     onDragCancel = {
 
@@ -67,7 +72,7 @@ fun <T> DragTarget(
     ){
         Log.i("recompositionOfContent", currentPosition.x.roundToInt().toString() + " " + currentPosition.y.roundToInt())
         Log.i("recompositionOfContentOrigin", currentOriginPos.x.roundToInt().toString() + " " + currentOriginPos.y.roundToInt())
-        if(!currentState.isDragging) {
+        if(!isDraggingLocal) {
             content(currentOriginPos.x.toString() + " " + currentOriginPos.y.toString())
         }
     }
