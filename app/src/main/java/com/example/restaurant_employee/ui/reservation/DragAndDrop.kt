@@ -25,7 +25,10 @@ internal val LocalDragTargetInfo = compositionLocalOf { DragTargetInfo() }
 fun <T> DragTarget(
     modifier: Modifier = Modifier,
     dataToDrop: T,
-    contentSize: Dp,
+    widthTarget: Dp,
+    heightTarget: Dp,
+    tableWidthInTiles: Int = 1,
+    tableHeightInTiles: Int = 1,
     content: @Composable ((text: String) -> Unit)
 ){
     var currentPosition by remember { mutableStateOf(Offset.Zero) }
@@ -55,8 +58,8 @@ fun <T> DragTarget(
                     onDragEnd = {
                         // Round table by cells
                         currentState.dragOffset = Offset(
-                            ((currentState.dragOffset.x / contentSize.roundToPx().toFloat()).roundToInt() * contentSize.roundToPx()).toFloat(),
-                            ((currentState.dragOffset.y / contentSize.roundToPx().toFloat()).roundToInt() * contentSize.roundToPx()).toFloat()
+                            ((currentState.dragOffset.x / (widthTarget.roundToPx().toFloat() / tableWidthInTiles)).roundToInt() * widthTarget.roundToPx() / tableWidthInTiles).toFloat(),
+                            ((currentState.dragOffset.y / (heightTarget.roundToPx().toFloat() / tableHeightInTiles)).roundToInt() * heightTarget.roundToPx() / tableHeightInTiles).toFloat()
                         )
 
                         currentOriginPos += currentState.dragOffset

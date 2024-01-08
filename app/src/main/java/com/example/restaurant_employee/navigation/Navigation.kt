@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.restaurant_employee.ui.tables.ClientTablesComposable
 import com.example.restaurant_employee.ui.reservation.ReservationScreen
 
 object NavigationRouter {
@@ -15,9 +16,12 @@ object NavigationRouter {
 
 @Composable
 fun Navigation(navController: NavHostController, context: Context) {
-    NavHost(navController = navController, startDestination = Screen.Tables.route) {
+    NavHost(navController = navController, startDestination = Screen.ClientTables.route) {
         composable(route = Screen.Tables.route) {
             ReservationScreen()
+        }
+        composable(route = Screen.ClientTables.route) {
+            ClientTablesComposable()
         }
     }
 }

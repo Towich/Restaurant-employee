@@ -1,118 +1,167 @@
 package com.example.restaurant_employee.ui.reservation
 
 import android.util.Log
-import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.toSize
-import com.exyte.animatednavbar.utils.toDp
-import com.exyte.animatednavbar.utils.toPxf
-import kotlin.math.roundToInt
+import com.example.restaurant_employee.R
+import com.example.restaurant_employee.ui.tables.TableUIModel
+import java.util.UUID
 
 @Composable
-fun ReservationScreen(
-
-) {
-    var boxSize by remember { mutableStateOf(Size.Zero)}
+fun ReservationScreen() {
+    var tablesCount by remember { mutableIntStateOf(0) }
+    val tables = remember { mutableStateListOf<TableUIModel>() }
+    val columns = 18f
+    val rows = 28f
 
     DraggableScreen(
         modifier = Modifier
-            .onGloballyPositioned {layoutCoordinates ->
-                boxSize = layoutCoordinates.size.toSize()
-            }
     ) {
-        val configuration = LocalConfiguration.current
+        BoxWithConstraints {
+            Box(modifier = Modifier.fillMaxSize()) {
+                val tileWidth: Dp = this@BoxWithConstraints.maxWidth / columns
+                val tileHeight: Dp = this@BoxWithConstraints.maxHeight / rows
 
-        val sizeOfPoints = 4.dp
-
-        // Before: 60.dp
-        val sizeOfTable = (configuration.screenWidthDp.dp / 6f)
-
-        var tablesCount by remember { mutableIntStateOf(0) }
-
-        val startOffset = (sizeOfTable / 2 - sizeOfPoints / 2).toPxf()
-        val offsetStep: Float = (sizeOfTable - sizeOfPoints / 2).toPxf()
-
-        val maxOffsetX = boxSize.width
-        val maxOffsetY = boxSize.height
-        Log.i("maxOffset", "x = $maxOffsetX, y = $maxOffsetY")
-
-        var offsetX = startOffset
-        var offsetY = startOffset
-
-        while(offsetX < maxOffsetX){
-            while(offsetY < maxOffsetY){
-                Box(
-                    modifier = Modifier
-                        .offset(
-                            if (offsetX.roundToInt() == startOffset.roundToInt())
-                                offsetX.toDp()
-                            else
-                                (offsetX + (offsetX / offsetStep.roundToInt()) * sizeOfPoints
-                                    .toPxf()
-                                    .roundToInt() / 2).toDp(),
-                            if (offsetY.roundToInt() == startOffset.roundToInt())
-                                offsetY.toDp()
-                            else
-                                (offsetY + (offsetY / offsetStep.roundToInt()) * sizeOfPoints
-                                    .toPxf()
-                                    .roundToInt() / 2).toDp()
-                        )
-                        .size(sizeOfPoints)
-                        .background(MaterialTheme.colorScheme.primary)
+                // Background
+                Image(
+                    modifier = Modifier.fillMaxSize(),
+                    painter = painterResource(id = R.drawable.tables_blue_empty),
+                    contentDescription = null,
+                    contentScale = ContentScale.FillBounds
                 )
 
-                offsetY += offsetStep
+                // Cells
+                for (row in 0 until rows.toInt()) {
+                    for (column in 0 until columns.toInt()) {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .padding(start = tileWidth * column, top = tileHeight * row)
+                                .width(tileWidth)
+                                .height(tileHeight)
+                                .border(width = 0.5.dp, color = Color.Black)
+                        ) {
+//                        Text(
+//                            text = "$column"
+//                        )
+                        }
+                    }
+                }
+
+                // Tables
+                for(table in tables){
+                    DraggableTable(
+                        tileWidth = tileWidth,
+                        tileHeight = tileHeight,
+                        tableWidthInTiles = table.widthTiles,
+                        tableHeightInTiles = table.heightTiles
+                    )
+                }
+
+//                repeat(tablesCount) {
+//
+//                }
+
+                // FAB Create table 3x2
+                FloatingActionButton(
+                    onClick = {
+                        tables.add(
+                            TableUIModel(
+                            id = UUID.randomUUID().toString(),
+                            x = 0,
+                            y = 0,
+                            widthTiles = 3,
+                            heightTiles = 2
+                        )
+                        )
+                    },
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                ) {
+                    Icon(Icons.Filled.Add, "Floating action button.")
+                }
+
+                // FAB Create table 2x2
+                FloatingActionButton(
+                    onClick = {
+                        tables.add(TableUIModel(
+                            id = UUID.randomUUID().toString(),
+                            x = 0,
+                            y = 0,
+                            widthTiles = 2,
+                            heightTiles = 2
+                        ))
+                    },
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                ) {
+                    Icon(Icons.Filled.Add, "Floating action button.")
+                }
             }
-            offsetY = startOffset
-            offsetX += offsetStep
-        }
-
-        repeat(tablesCount) {
-            DraggableTable(sizeOfTable = sizeOfTable)
-        }
-
-        FloatingActionButton(
-            onClick = { tablesCount++ },
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-        ) {
-            Icon(Icons.Filled.Add, "Floating action button.")
         }
     }
 }
+//        while (offsetX < maxOffsetX) {
+//            while (offsetY < maxOffsetY) {
+//                Box(
+//                    modifier = Modifier
+//                        .offset(
+//                            if (offsetX.roundToInt() == startOffset.roundToInt())
+//                                offsetX.toDp()
+//                            else
+//                                (offsetX + (offsetX / offsetStep.roundToInt()) * sizeOfPoints
+//                                    .toPxf()
+//                                    .roundToInt() / 2).toDp(),
+//                            if (offsetY.roundToInt() == startOffset.roundToInt())
+//                                offsetY.toDp()
+//                            else
+//                                (offsetY + (offsetY / offsetStep.roundToInt()) * sizeOfPoints
+//                                    .toPxf()
+//                                    .roundToInt() / 2).toDp()
+//                        )
+//                        .size(sizeOfPoints)
+//                        .background(MaterialTheme.colorScheme.primary)
+//                )
+//
+//                offsetY += offsetStep
+//            }
+//            offsetY = startOffset
+//            offsetX += offsetStep
+//        }
+
+
+
+
+
 
 @Composable
 fun DraggableScreen(
@@ -164,22 +213,30 @@ fun DraggableScreen(
 
 @Composable
 fun DraggableTable(
-    sizeOfTable: Dp
-){
+    tileWidth: Dp,
+    tileHeight: Dp,
+    tableWidthInTiles: Int = 1,
+    tableHeightInTiles: Int = 1
+) {
     DragTarget(
         dataToDrop = "1",
-        contentSize = sizeOfTable
+        widthTarget = tileWidth * tableWidthInTiles,
+        heightTarget = tileHeight * tableHeightInTiles,
+        tableWidthInTiles = tableWidthInTiles,
+        tableHeightInTiles = tableHeightInTiles
     ) {
         Box(
             Modifier
-                .background(MaterialTheme.colorScheme.primary)
-                .size(sizeOfTable),
+                .width(tileWidth * tableWidthInTiles)
+                .height(tileHeight * tableHeightInTiles),
             contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = it,
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.Black,
+            Image(
+                painter = painterResource(id = if(tableWidthInTiles == 3) R.drawable.table3x2 else R.drawable.table2x2),
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxSize(),
+                contentScale = ContentScale.FillBounds
             )
         }
     }
