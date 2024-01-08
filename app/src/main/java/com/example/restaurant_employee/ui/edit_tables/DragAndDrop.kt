@@ -1,4 +1,4 @@
-package com.example.restaurant_employee.ui.reservation
+package com.example.restaurant_employee.ui.edit_tables
 
 import android.util.Log
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -16,7 +16,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 
 internal val LocalDragTargetInfo = compositionLocalOf { DragTargetInfo() }

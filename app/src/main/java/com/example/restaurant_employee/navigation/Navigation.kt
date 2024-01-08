@@ -8,7 +8,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.restaurant_employee.ui.tables.ClientTablesComposable
-import com.example.restaurant_employee.ui.reservation.ReservationScreen
+import com.example.restaurant_employee.ui.edit_tables.EditTablesScreen
 
 object NavigationRouter {
     var currentScreen: MutableState<Screen> = mutableStateOf(Screen.Tables)
@@ -18,7 +18,7 @@ object NavigationRouter {
 fun Navigation(navController: NavHostController, context: Context) {
     NavHost(navController = navController, startDestination = Screen.ClientTables.route) {
         composable(route = Screen.Tables.route) {
-            ReservationScreen()
+            EditTablesScreen()
         }
         composable(route = Screen.ClientTables.route) {
             ClientTablesComposable()

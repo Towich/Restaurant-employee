@@ -1,4 +1,4 @@
-package com.example.restaurant_employee.ui.reservation
+package com.example.restaurant_employee.ui.edit_tables
 
 import android.util.Log
 import androidx.compose.foundation.Image
@@ -37,7 +37,7 @@ import com.example.restaurant_employee.ui.tables.TableUIModel
 import java.util.UUID
 
 @Composable
-fun ReservationScreen() {
+fun EditTablesScreen() {
     var tablesCount by remember { mutableIntStateOf(0) }
     val tables = remember { mutableStateListOf<TableUIModel>() }
     val columns = 18f
